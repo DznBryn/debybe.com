@@ -13,11 +13,11 @@ export function Home() {
 					<h1 className='text-3xl mb-4 font-bold'>Todo List App</h1>
 					<MemoryStatus />
 				</div>
-				<div className='flex flex-row'>
-					<div className='py-2 min-w-80'>
+				<div className='flex flex-col sm:flex-row'>
+					<div className='py-2 min-w-80 order-2 sm:order-1'>
 						<TaskList />
 					</div>
-					<div className='py-2 px-4 w-full'>
+					<div className='py-2 px-4 w-full order-1 sm:order-2'>
 						<TaskForm />
 					</div>
 				</div>
