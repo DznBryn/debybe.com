@@ -1,0 +1,1 @@
+export const MAX_LOCAL_STORAGE_SIZE = 102400;
