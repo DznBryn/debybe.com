@@ -19,9 +19,9 @@ const Navbar: React.FC = () => {
 					<ul
 						className={`hidden justify-between space-x-4 w-full md:flex md:space-x-4 `}>
 						<NavItem href='/apps/todo'>Projects</NavItem>
-						<NavItem href='/about'>About</NavItem>
+						<NavItem href='/resume/Brian_Resume2025.pdf' target='_blank'>Resume</NavItem>
 						<NavItem href='/services'>Services</NavItem>
-						<NavItem href='/contact'>Contact</NavItem>
+						<NavItem href='/contact'>Chat</NavItem>
 					</ul>
 				</div>
 
@@ -34,9 +34,9 @@ const Navbar: React.FC = () => {
 						</button>
 						<ul className='flex flex-col justify-center items-center space-y-16'>
 							<NavItem href='/apps/todo'>Projects</NavItem>
-							<NavItem href='/about'>About</NavItem>
+							<NavItem href='/resume/Brian_Resume2025.pdf' target='_blank'>Resume</NavItem>
 							<NavItem href='/services'>Services</NavItem>
-							<NavItem href='/contact'>Contact</NavItem>
+							<NavItem href='/contact'>Chat</NavItem>
 						</ul>
 					</div>
 				)}

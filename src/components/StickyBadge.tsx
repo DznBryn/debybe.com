@@ -2,17 +2,18 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { FaGithubAlt } from 'react-icons/fa';
 
 const StickyBadge: React.FC = () => {
 	const githubProfile = {
-		name: 'Brian',
+		name: 'Bryan D.',
 		image: 'https://avatars.githubusercontent.com/u/12739841?v=4',
 		url: 'https://github.com/DznBryn/',
 	};
 
 	return (
 		<div className='fixed right-8 bottom-16 z-50'>
-			<div className='flex items-center bg-white p-3 rounded shadow-md'>
+			<div className='flex items-center bg-white p-3 rounded shadow-md gap-2'>
 				<a
 					href={githubProfile.url}
 					target='_blank'
@@ -25,12 +26,8 @@ const StickyBadge: React.FC = () => {
 						height={40}
 						className='rounded-full'
 					/>
-					<span>
-						Welcome! I&apos;m {''}
-						<span className='text-blue-500 font-bold'>
-							{githubProfile.name}
-						</span>
-					</span>
+					<FaGithubAlt className='text-red-950' size={25} />
+					<span className=''>{githubProfile.name}</span>
 				</a>
 			</div>
 		</div>
