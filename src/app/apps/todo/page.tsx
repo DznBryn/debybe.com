@@ -1,5 +1,5 @@
-import { Home } from "@/components/Home";
+import Todo from "@/components/Todo";
 
 export default function Page() {
-  return <Home />;
+  return <Todo />;
 }
