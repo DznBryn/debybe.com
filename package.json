@@ -9,16 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^1.2.1",
-    "@ai-sdk/react": "^1.1.21",
-    "ai": "^4.1.54",
     "class-validator": "^0.14.1",
-<<<<<<< Updated upstream
-    "next": "15.1.11",
-=======
     "mongoose": "^8.12.1",
-    "next": "15.1.7",
->>>>>>> Stashed changes
+    "next": "^15.5.12",
     "next-auth": "^4.24.11",
     "node-cron": "^3.0.3",
     "react": "^19.0.0",

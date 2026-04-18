@@ -6,25 +6,13 @@ if (!process.env.MONGODB_URI) {
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
-/**
- * Global is used here to maintain a cached connection across hot reloads
- * in development. This prevents connections growing exponentially
- * during API Route usage.
- */
-
-
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
 
 async function dbConnect() {
-  if (cached.conn) {
-    return cached.conn;
+  if (mongoose.connection.readyState >= 1) {
+    return mongoose.connection;
   }
 
-  if (!cached.promise) {
+  if (!mongoose.connection.readyState) {
     const opts = {
       bufferCommands: false,
       // Fix TLS issues
@@ -35,21 +23,28 @@ async function dbConnect() {
       connectTimeoutMS: 10000,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+    mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       console.log('MongoDB connected successfully');
       return mongoose;
     });
   }
 
   try {
-    cached.conn = await cached.promise;
+    await mongoose.connect(MONGODB_URI,{
+      bufferCommands: false,
+      // Fix TLS issues
+      ssl: true,
+      tls: true,
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      connectTimeoutMS: 10000,
+    });
   } catch (e) {
-    cached.promise = null;
     console.error('MongoDB connection error:', e);
     throw e;
   }
 
-  return cached.conn;
+  return mongoose.connection;
 }
 
 // Connection Events
