@@ -1,0 +1,22 @@
+{
+  "name": "@debybe/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tailwind": "./tailwind.preset.ts",
+    "./tsconfig": "./tsconfig.base.json"
+  },
+  "files": [
+    "tailwind.preset.ts",
+    "tsconfig.base.json"
+  ],
+  "dependencies": {
+    "@tailwindcss/typography": "^0.5.15",
+    "tailwindcss": "^3.4.14",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
