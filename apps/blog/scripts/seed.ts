@@ -19,31 +19,180 @@ const posts: SeedPost[] = [
     slug: 'welcome-to-debybe',
     title: 'Welcome to debybe',
     excerpt:
-      'A quick note on why this blog exists, what you should expect from it, and how the two sites under debybe.com are wired together.',
-    tags: ['meta', 'systems'],
-    readingMinutes: 3,
+      'Why this blog exists, what I’ve been building at scale, and what I’ve learned from real production systems—frontend architecture, LLM integration, and TypeScript at depth.',
+    tags: ['meta', 'systems', 'ai', 'typescript'],
+    readingMinutes: 5,
     publishedAt: new Date(),
     content: `## Why this exists
 
-This blog is the place I think out loud about **systems design**, **AI in production**, and the practical edges of shipping software that people have to operate.
+This blog is where I document how real systems are built, not how they are imagined.
 
-It lives on its own subdomain, \`blog.debybe.com\`, because the portfolio at \`debybe.com\` serves a different intent. One is for deciding whether to work with me. The other is for learning something.
+Most content online stops at tutorials or surface-level patterns. What’s missing is how things behave under real constraints—large datasets, complex workflows, evolving requirements, and systems that multiple teams depend on.
 
-## Architecture
+My focus is on:
+- **Frontend architecture at scale**
+- **AI systems in production (not demos)**
+- **TypeScript as a design tool, not just type safety**
 
-The site is a micro-frontend. Two independent Next.js apps, one repo, one brand:
+This isn’t theory. This comes from building and owning systems end-to-end.
 
-- \`debybe.com\` — portfolio landing page
-- \`blog.debybe.com\` — this blog, backed by MongoDB
+---
 
-Each deploys separately. No shared runtime in the browser. Cross-links are just absolute URLs driven by env vars.
+## What I’ve been building
+
+At \`Pratt & Whitney\`, I was the **sole frontend lead** on an internal platform called **PM Express**.
+
+This wasn’t a typical dashboard.
+
+It was a **financial and forecasting system** with:
+- Deeply nested data hierarchies (Budget Owner → Category → IO)
+- Time-phased datasets (year + monthly breakdowns)
+- Editable vs locked states based on business rules
+- Versioning, locking, and audit-style workflows
+- Large-scale tables powered by MUI DataGrid
+
+### What that actually meant
+
+- Building a **"dirty layer" editing system**  
+  Users could stage changes across months, review them, then commit in bulk. Nothing auto-saved.
+
+- Designing **deterministic UI state over async data**  
+  Avoiding race conditions while syncing backend data, local edits, and filters.
+
+- Handling **performance at scale**  
+  Thousands of rows, dynamic columns (months), computed totals, and real-time updates.
+
+- Creating **clear data contracts**  
+  The frontend wasn’t just consuming APIs—it enforced structure and consistency across the system.
+
+This is where architecture stops being optional.
+
+---
+
+## What I learned about integrating LLMs
+
+Most AI discussions focus on prompts. That’s not the hard part.
+
+The real problem is **everything around the model**.
+
+When implementing LLM features, I learned quickly:
+
+### 1. The model is the least reliable part of your system
+
+You cannot assume:
+- consistent structure
+- deterministic output
+- stable performance
+
+So you design for failure.
+
+### 2. Structure > creativity
+
+Strict schemas and validation matter more than clever prompts.
+
+\`\`\`ts
+const result = await client.responses.parse({
+  model,
+  input,
+  text_format: OutputSchema,
+});
+\`\`\`
+
+If it can’t be parsed, it’s not usable.
+
+### 3. Cost and latency are first-class concerns
+
+Every request has:
+- token cost
+- latency variability
+- scaling implications
+
+So you:
+- truncate inputs
+- cap outputs
+- track usage per request
+
+### 4. You need guardrails, not just features
+
+- Evaluation sets before shipping
+- Observability (inputs, outputs, tokens, latency)
+- Fallbacks and feature flags
+
+AI without these becomes unpredictable quickly.
+
+---
+
+## What TypeScript actually unlocked for me
+
+I didn’t initially treat TypeScript as a design tool. That changed.
+
+Working on complex systems forced a shift:
+
+### 1. Types define system boundaries
+
+Instead of:
+- guessing API shapes
+- relying on docs
+
+Types became the **source of truth**.
+
+### 2. Narrowing is where TypeScript becomes powerful
+
+Understanding:
+- \`typeof\`
+- \`instanceof\`
+- \`in\` operator
+- custom type guards
+
+turned runtime uncertainty into compile-time guarantees.
+
+### 3. “Casting” is usually a smell
+
+Most casting problems were actually:
+- missing unions
+- incorrect assumptions
+- or lack of proper narrowing
+
+Fixing the type model removed the need for unsafe casts.
+
+### 4. Complex UI = complex types
+
+Dynamic tables, conditional edit states, and derived values required:
+- mapped types
+- indexed access types
+- discriminated unions
+
+Without strong typing, the system becomes fragile fast.
+
+---
+
+## Architecture of this site
+
+The site reflects the same principles.
+
+Two independent Next.js apps, one repo:
+
+- \`debybe.com\` — portfolio
+- \`blog.debybe.com\` — this blog
+
+### Why this structure
+
+- **Isolation** — deployments don’t affect each other  
+- **Independent velocity** — blog ships without touching the main site  
+- **Clear boundaries** — no shared runtime complexity  
+
+This is a deliberate tradeoff over multi-zone setups.
+
+---
 
 ## What to expect
 
-- Short posts, specific problems, real tradeoffs
-- Diagrams when they help, not when they fill space
-- Code snippets you can copy
-- No newsletter pitch at the bottom of every post
+- Real implementation details, not abstractions
+- Tradeoffs, not just “best practices”
+- Patterns that come from production systems
+- Code that reflects actual constraints
+
+No filler. No generic content.
 `,
   },
   {

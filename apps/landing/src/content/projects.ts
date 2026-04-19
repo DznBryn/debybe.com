@@ -8,10 +8,10 @@ export interface Project {
 
 export const projects: Project[] = [
   {
-    title: 'Aerospace engineering platform',
-    role: 'Pratt & Whitney — Senior Frontend Engineer (Lead)',
+    title: 'Aerospace Financial Systems Platform',
+    role: 'Pratt & Whitney — Senior Frontend Engineer',
     summary:
-      'Sole frontend lead on enterprise-grade internal applications. Owns architecture, strongly typed component systems, and complex financial + forecasting workflows.',
+      'Frontend lead owning architecture for enterprise applications. Built scalable, TypeScript systems powering complex financial and forecasting workflows. Designed modular component architecture, centralized state (Redux Toolkit), and optimized performance across large data-intensive interfaces.',
     stack: ['Next.js', 'TypeScript', 'Redux Toolkit', 'MUI'],
   },
   {

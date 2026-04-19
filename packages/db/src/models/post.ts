@@ -75,11 +75,14 @@ function hasDbConfig(): boolean {
 
 export async function getPublishedPosts(limit = 50): Promise<PostListItem[]> {
   if (!hasDbConfig()) return [];
+  
   await connectDb();
+
   const docs = await PostModel.find({ status: 'published' })
     .sort({ publishedAt: -1 })
     .limit(limit)
     .lean<PostDocument[]>({ virtuals: false });
+
   return docs.map((d) => serializeListItem(d as PostDocument));
 }
 

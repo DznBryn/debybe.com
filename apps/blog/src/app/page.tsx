@@ -12,7 +12,7 @@ export default async function BlogIndexPage() {
       <Container size="lg" className="py-16 md:py-24">
         <header className="mb-12 max-w-2xl">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-fg-subtle">
-            debybe · blog
+            debybe · journal
           </p>
           <h1 className="mt-2 text-4xl font-semibold tracking-tight text-fg md:text-5xl">
             Architecture notes, written in public.

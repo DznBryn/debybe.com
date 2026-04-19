@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { cache } from 'react';
 import { Container, Prose } from '@debybe/ui';
 import { getPostBySlug } from '@debybe/db';
 import { PostHeader } from '@/components/post-header';
@@ -12,9 +13,11 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+const getCachedPostBySlug = cache(async (slug: string) => getPostBySlug(slug));
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const post = await getCachedPostBySlug(slug);
   if (!post) return { title: 'Not found' };
 
   return {
@@ -39,7 +42,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PostPage({ params }: PageProps) {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const post = await getCachedPostBySlug(slug);
   if (!post) notFound();
 
   return (
