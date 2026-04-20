@@ -8,12 +8,15 @@
     ".": "./src/index.ts",
     "./models/post": "./src/models/post.ts"
   },
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "scripts": {
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf .turbo node_modules"
   },
   "dependencies": {
+    "aws4": "^1.13.2",
     "mongoose": "^8.8.2"
   },
   "devDependencies": {
