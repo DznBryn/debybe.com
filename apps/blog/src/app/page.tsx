@@ -25,7 +25,7 @@ const getPublishedPostsFromApi = cache(async (limit = 50): Promise<PublishedPost
 
 export default async function BlogIndexPage() {
   const posts = await getPublishedPostsFromApi(50);
-  
+
   return (
     <main>
       <Container size="lg" className="py-16 md:py-24">

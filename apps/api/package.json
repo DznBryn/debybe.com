@@ -14,12 +14,12 @@
     "@apollo/server": "^4.12.2",
     "@debybe/graphql": "workspace:*",
     "dotenv": "^16.4.5",
-    "graphql": "^16.11.0"
+    "graphql": "^16.11.0",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@debybe/config": "workspace:*",
     "@types/node": "^20.17.6",
-    "tsx": "^4.20.6",
     "typescript": "^5.6.3"
   }
 }

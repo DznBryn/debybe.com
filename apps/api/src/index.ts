@@ -16,10 +16,10 @@ const server = new ApolloServer({
   resolvers,
 });
 
-const port = Number(process.env.GRAPHQL_PORT ?? 4000);
+const port = Number(process.env.PORT ?? process.env.GRAPHQL_PORT ?? 4000);
 
 const { url } = await startStandaloneServer(server, {
-  listen: { port },
+  listen: { host: '0.0.0.0', port },
 });
 
 console.log(`GraphQL API ready at ${url}`);
