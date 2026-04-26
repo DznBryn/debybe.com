@@ -1,0 +1,25 @@
+{
+  "name": "@debybe/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch --watch-path=src --watch-path=../../packages/graphql/src --import tsx ./src/index.ts",
+    "start": "tsx src/index.ts",
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.12.2",
+    "@debybe/graphql": "workspace:*",
+    "dotenv": "^16.4.5",
+    "graphql": "^16.11.0"
+  },
+  "devDependencies": {
+    "@debybe/config": "workspace:*",
+    "@types/node": "^20.17.6",
+    "tsx": "^4.20.6",
+    "typescript": "^5.6.3"
+  }
+}

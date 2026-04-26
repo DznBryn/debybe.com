@@ -1,5 +1,5 @@
 import { config as loadEnv } from 'dotenv';
-import { PostModel, connectDb, disconnectDb } from '@debybe/db';
+import { PostModel, connectDb, disconnectDb, hasMongoConfig, resolveMongoUri } from '@debybe/db';
 
 loadEnv({ path: '.env.local' });
 loadEnv({ path: '.env' });
@@ -13,6 +13,22 @@ type SeedPost = {
   publishedAt: Date;
   content: string;
 };
+
+function redactMongoUri(uri: string): string {
+  if (!(uri.startsWith('mongodb://') || uri.startsWith('mongodb+srv://'))) {
+    return uri;
+  }
+  try {
+    const parsed = new URL(uri);
+    if (parsed.username || parsed.password) {
+      parsed.username = '***';
+      parsed.password = '***';
+    }
+    return parsed.toString();
+  } catch {
+    return '[invalid mongo uri]';
+  }
+}
 
 const posts: SeedPost[] = [
   {
@@ -249,14 +265,233 @@ For debybe.com I picked the third. Here's why:
 The cost is that I lose same-origin session sharing, which I don't need. For the MVP, the blog is read-only and anonymous.
 `,
   },
+  {
+    slug: 'implementing-graphql-why-i-use-it',
+    title: 'Implementing GraphQL: Why I Use It',
+    excerpt: 'GraphQL streamlines the API layer by eliminating over-fetching, reducing endpoint sprawl, and letting the client request exactly the data it needs. This post covers why it fits well with modern frontend architecture and how Apollo Server and Apollo Client work together to structure, execute, and manage data flow.',
+    tags: ['graphql', 'apollo', 'apolloserver', 'apolloclient'],
+    readingMinutes: 3,
+    publishedAt: new Date('2026-04-26T16:21:00.000Z'),
+    content: `Before getting into how I implement GraphQL, it’s worth explaining why I reach for it in most of my API layers.
+
+### Why GraphQL
+
+In a lot of applications, REST starts to show friction pretty quickly:
+
+* You either **over-fetch** (get too much data)
+* Or **under-fetch** (need multiple calls to build one view)
+* You end up with **too many endpoints**
+* The frontend has to **orchestrate multiple requests**
+
+GraphQL solves this by letting the client ask for exactly what it needs—nothing more, nothing less.
+
+What I get out of it:
+
+* **Precise data fetching** → components request only what they use
+* **Single endpoint** → no endpoint sprawl
+* **Aggregation layer** → combine multiple services in one query
+* **Strong typing** → the schema doubles as documentation
+
+For frontend-heavy apps (React, Next.js, Remix), this fits naturally with how components are built.
+
+---
+
+## The Basics: Schema + Resolvers
+
+GraphQL really comes down to two things:
+
+### Schema (Type Definitions)
+
+This is the contract of your API, written in SDL.
+
+\`\`\`graphql
+type Query {
+  user(id: ID!): User
+}
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+}
+\`\`\`
+
+It defines:
+
+* What you can query
+* What shape the data has
+* What inputs are required
+
+Think of it as the **blueprint of your API**.
+
+---
+
+### Resolvers
+
+Resolvers are where the actual work happens.
+
+\`\`\`ts
+const resolvers = {
+  Query: {
+    user: async (_, { id }, { db }) => {
+      return db.users.findById(id);
+    },
+  },
+};
+\`\`\`
+
+They:
+
+* Fetch data
+* Apply business logic
+* Connect to databases or other APIs
+
+Schema says *what exists*. Resolvers define *how it works*.
+
+---
+
+## Server Layer: Apollo Server
+
+This is what I use to run my GraphQL API.
+
+It sits between the client and your data sources (MongoDB, REST APIs, etc.), and handles:
+
+* Executing queries
+* Validating against the schema
+* Managing request lifecycle
+
+### Basic Setup
+
+\`\`\`ts
+import { ApolloServer } from '@apollo/server';
+import { startStandaloneServer } from '@apollo/server/standalone';
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+});
+
+const { url } = await startStandaloneServer(server, {
+  listen: { port: 4000 },
+});
+\`\`\`
+
+---
+
+### Why Apollo Server
+
+What I like about it:
+
+* **Performance tools**
+
+  * Built-in caching
+  * Query batching
+  * DataLoader support (fixes N+1 problems)
+
+* **Extensibility**
+
+  * Plugins for logging, metrics, error handling
+  * Request lifecycle hooks
+
+* **Scalability**
+
+  * Federation support for microservices
+  * Subscriptions for real-time updates
+
+---
+
+## Quick Note on \`startStandaloneServer\`
+
+This is just a helper to:
+
+* Spin up an HTTP server
+* Attach Apollo Server to it
+* Get something running quickly
+
+It’s useful when you don’t want to wire up Express or another framework yet.
+
+---
+
+## Client Layer: Apollo Client
+
+On the frontend, I use Apollo Client.
+
+It’s not just a fetch library—it’s also a **state manager** for GraphQL data.
+
+### Setup
+
+\`\`\`ts
+import { ApolloClient, InMemoryCache } from '@apollo/client';
+
+const client = new ApolloClient({
+  uri: 'http://localhost:4000',
+  cache: new InMemoryCache(),
+});
+\`\`\`
+
+---
+
+### Why Apollo Client
+
+* **All-in-one data layer**
+
+  * Queries, mutations, subscriptions
+  * Server + local state in one place
+
+* **Smart caching**
+
+  * Normalized cache
+  * Automatic UI updates
+
+* **Flexible networking**
+
+  * HTTP + WebSockets
+  * Retries, batching, middleware
+
+* **Works well with React**
+
+  * Co-locates queries with components
+  * Strong TypeScript support
+
+---
+
+## How It All Fits Together
+
+At a high level:
+
+\`\`\`
+Frontend (Apollo Client)
+        ↓
+Apollo Server (GraphQL)
+        ↓
+Databases / APIs
+\`\`\`
+
+GraphQL becomes the **middle layer that shapes data for the UI**, instead of forcing the UI to adapt to backend structure.
+
+---
+
+## Wrap Up
+
+GraphQL simplifies a lot of the problems that show up as applications grow:
+
+* Less API surface area
+* Cleaner data flow to the frontend
+* Strong typing across the stack
+
+Apollo Server + Apollo Client make it straightforward to implement and scale.
+
+`,
+  }
 ];
 
 async function main() {
-  if (!process.env.MONGODB_URI) {
-    console.error('MONGODB_URI is not set. Create apps/blog/.env.local first.');
+  if (!hasMongoConfig()) {
+    console.error('Mongo config is missing. Set MONGODB_URI or MONGODB_BASE_URI first.');
     process.exit(1);
   }
 
+  console.log(`Connecting to ${redactMongoUri(resolveMongoUri())}`);
   await connectDb();
 
   for (const post of posts) {

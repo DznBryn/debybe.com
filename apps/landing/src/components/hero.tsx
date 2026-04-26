@@ -1,6 +1,10 @@
 import { LegacyButton, Container, siteUrls } from '@debybe/ui';
 
-export function Hero() {
+interface HeroProps {
+  apiStatus?: string | null;
+}
+
+export function Hero({ apiStatus }: HeroProps) {
   return (
     <section className="relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 grid-bg opacity-60" aria-hidden />
@@ -19,12 +23,17 @@ export function Hero() {
           </p>
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row">
             <LegacyButton href={siteUrls.blog} variant="primary">
-              Read the blog
+              Read my blog
             </LegacyButton>
             <LegacyButton href="#contact" variant="outline">
               Get in touch
             </LegacyButton>
           </div>
+          {apiStatus && (
+            <p className="mt-4 rounded-full border border-border bg-bg-soft px-3 py-1 text-[10px] font-mono uppercase tracking-[0.2em] text-fg-subtle">
+              shared api status: {apiStatus}
+            </p>
+          )}
           <span className="mt-14 font-mono text-[10px] uppercase tracking-[0.3em] text-fg-subtle">
             scroll to learn more about my skills and experiences
           </span>

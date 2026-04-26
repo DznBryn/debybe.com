@@ -80,27 +80,29 @@ Each app deploys independently. No shared browser runtime. Cross-links are absol
 
 ## Development
 
-Run both apps in parallel:
+Run all services in parallel:
 
 ```sh
 pnpm dev
 ```
 
-- Landing → <http://debybe.local:3000>
-- Blog    → <http://blog.debybe.local:3001>
+- Landing     → <http://debybe.local:3000>
+- Blog        → <http://blog.debybe.local:3001>
+- GraphQL API → <http://localhost:4000>
 
 Run just one:
 
 ```sh
 pnpm --filter @debybe/landing dev
 pnpm --filter @debybe/blog dev
+pnpm --filter @debybe/api dev
 ```
 
 ## Scripts (root)
 
 | Script              | What it does                                              |
 | ------------------- | --------------------------------------------------------- |
-| `pnpm dev`          | Runs both apps in parallel via Turborepo                  |
+| `pnpm dev`          | Runs landing, blog, and GraphQL API in parallel           |
 | `pnpm build`        | Production build for every app and package                |
 | `pnpm lint`         | Lints everything                                          |
 | `pnpm typecheck`    | Typechecks everything                                     |
@@ -123,20 +125,42 @@ Builds succeed even without `MONGODB_URI` — DB-backed queries gracefully retur
 ```
 NEXT_PUBLIC_LANDING_URL=http://debybe.local:3000
 NEXT_PUBLIC_BLOG_URL=http://blog.debybe.local:3001
+GRAPHQL_API_URL=http://localhost:4000
 ```
 
 ### `apps/blog/.env.local`
 
 ```
-MONGODB_URI=mongodb://localhost:27017/debybe
+MONGODB_URI=mongodb://localhost:27017/blog_test
 NEXT_PUBLIC_LANDING_URL=http://debybe.local:3000
 NEXT_PUBLIC_BLOG_URL=http://blog.debybe.local:3001
+GRAPHQL_API_URL=http://localhost:4000
+GITHUB_CLIENT_ID=your_github_oauth_app_client_id
+GITHUB_CLIENT_SECRET=your_github_oauth_app_client_secret
+NEXTAUTH_SECRET=generate_a_long_random_string
+NEXTAUTH_URL=http://localhost:3001
+ADMIN_GITHUB_LOGIN=dznbryn
+```
+
+### `apps/api/.env.local`
+
+```
+GRAPHQL_PORT=4000
+NEXT_PUBLIC_LANDING_URL=http://debybe.local:3000
+NEXT_PUBLIC_BLOG_URL=http://blog.debybe.local:3001
+MONGODB_URI=mongodb://localhost:27017/blog_test
 ```
 
 Production values:
 
 - `NEXT_PUBLIC_LANDING_URL=https://debybe.com`
 - `NEXT_PUBLIC_BLOG_URL=https://blog.debybe.com`
+- `GRAPHQL_API_URL=https://api.debybe.com` (for landing/blog apps)
+- `GRAPHQL_PORT=4000` (for the API app runtime)
+- `MONGODB_URI=.../blogs` (or set `MONGODB_BASE_URI=...` and `MONGODB_DB_NAME=blogs`)
+- `ADMIN_GITHUB_LOGIN=dznbryn` (GitHub user allowed into `/admin`)
+
+`@debybe/db` now defaults to `blog_test` in local development and `blogs` in production when no DB name is present in the URI. It also bootstraps the `posts` collection on first connect, which creates the database automatically if it does not exist yet.
 
 ## Blog data model
 
@@ -160,11 +184,11 @@ Production values:
 
 Only `status: 'published'` posts are surfaced by the public queries (`getPublishedPosts`, `getPostBySlug`, `getPostsByTag`, `getAllTags`).
 
-To add or edit posts for the MVP, extend `apps/blog/scripts/seed.ts` and re-run `pnpm seed:blog`. A proper `/admin` UI gated by `next-auth` is out of scope for this MVP.
+Posts can be managed from `/admin/editor`, which is protected by GitHub OAuth via `next-auth` and restricted to `ADMIN_GITHUB_LOGIN`.
 
 ## Deployment
 
-Two separate Vercel (or equivalent) projects, one per app. Each project points at its app directory.
+Three separate deployable services, one per app/service. Each project points at its app directory.
 
 ### Project: `debybe-landing`
 
@@ -180,17 +204,29 @@ Two separate Vercel (or equivalent) projects, one per app. Each project points a
 - Root directory: `apps/blog`
 - Framework preset: Next.js
 - Env vars:
-  - `MONGODB_URI=...`
+  - `MONGODB_URI=.../blogs`
   - `NEXT_PUBLIC_LANDING_URL=https://debybe.com`
   - `NEXT_PUBLIC_BLOG_URL=https://blog.debybe.com`
 - Domain: `blog.debybe.com`
+
+### Project: `debybe-api`
+
+- Root directory: `apps/api`
+- Runtime: Node.js service (Apollo Server)
+- Env vars:
+  - `GRAPHQL_PORT=4000`
+  - `MONGODB_URI=.../blogs`
+  - `NEXT_PUBLIC_LANDING_URL=https://debybe.com`
+  - `NEXT_PUBLIC_BLOG_URL=https://blog.debybe.com`
+- Domain: `api.debybe.com`
 
 ### DNS
 
 - `debybe.com` → landing deployment (A/ALIAS)
 - `blog.debybe.com` → blog deployment (CNAME)
+- `api.debybe.com` → api deployment (CNAME)
 
-No reverse proxy, no rewrites. DNS plus per-app deployments provide the subdomain split.
+No reverse proxy, no rewrites. DNS plus per-service deployments provide the subdomain split.
 
 ## Design tokens
 

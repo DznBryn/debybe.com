@@ -1,8 +1,15 @@
-import type { Post } from '@debybe/db';
 import { formatDate } from '@/lib/format';
 import { TagPill } from './tag-pill';
 
-export function PostHeader({ post }: { post: Post }) {
+type PostHeaderData = {
+  title: string;
+  excerpt: string;
+  tags: string[];
+  readingMinutes: number;
+  publishedAt: string | null;
+};
+
+export function PostHeader({ post }: { post: PostHeaderData }) {
   return (
     <header className="mb-10 border-b border-border/60 pb-10">
       <div className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.15em] text-fg-subtle">

@@ -1,4 +1,4 @@
-export { connectDb, disconnectDb } from './client';
+export { connectDb, disconnectDb, hasMongoConfig, resolveMongoUri } from './client';
 export {
   PostModel,
   getPublishedPosts,

@@ -1,5 +1,5 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from 'mongoose';
-import { connectDb } from '../client';
+import { connectDb, hasMongoConfig } from '../client';
 
 export type PostStatus = 'draft' | 'published';
 
@@ -70,7 +70,7 @@ function serializeListItem(doc: PostDocument): PostListItem {
 }
 
 function hasDbConfig(): boolean {
-  return typeof process.env.MONGODB_URI === 'string' && process.env.MONGODB_URI.length > 0;
+  return hasMongoConfig();
 }
 
 export async function getPublishedPosts(limit = 50): Promise<PostListItem[]> {

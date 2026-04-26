@@ -17,12 +17,56 @@ function getCache() {
   return g.__debybeMongoose;
 }
 
-export async function connectDb(): Promise<typeof mongoose> {
-  const uri = process.env.MONGODB_URI;
+function getDefaultDbName() {
+  return process.env.NODE_ENV === 'production' ? 'blogs' : 'blog_test';
+}
 
-  if (!uri) {
-    throw new Error('MONGODB_URI is not set. Add it to your environment before using @debybe/db.');
+function withDatabaseName(uri: string, dbName: string): string {
+  const normalized = uri.trim().replace(/\/+$/, '');
+  if (normalized.startsWith('mongodb://') || normalized.startsWith('mongodb+srv://')) {
+    const parsed = new URL(normalized);
+    const hasDbName = parsed.pathname && parsed.pathname !== '/';
+    if (!hasDbName) {
+      parsed.pathname = `/${dbName}`;
+    }
+    return parsed.toString();
   }
+  return normalized;
+}
+
+export function hasMongoConfig(): boolean {
+  return Boolean(process.env.MONGODB_URI || process.env.MONGODB_BASE_URI);
+}
+
+export function resolveMongoUri(): string {
+  const dbName = process.env.MONGODB_DB_NAME || getDefaultDbName();
+  const directUri = process.env.MONGODB_URI;
+  if (directUri) {
+    return withDatabaseName(directUri, dbName);
+  }
+
+  const baseUri = process.env.MONGODB_BASE_URI || 'mongodb://localhost:27017';
+  return withDatabaseName(baseUri, dbName);
+}
+
+async function ensureBootstrapCollection(): Promise<void> {
+  const db = mongoose.connection.db;
+  if (!db) return;
+
+  const collectionName = 'posts';
+  const exists = await db.listCollections({ name: collectionName }, { nameOnly: true }).hasNext();
+  if (!exists) {
+    await db.createCollection(collectionName);
+  }
+}
+
+export async function connectDb(): Promise<typeof mongoose> {
+  if (!hasMongoConfig()) {
+    throw new Error(
+      'Mongo configuration is missing. Set MONGODB_URI or MONGODB_BASE_URI before using @debybe/db.',
+    );
+  }
+  const uri = resolveMongoUri();
 
   const cache = getCache();
 
@@ -35,6 +79,7 @@ export async function connectDb(): Promise<typeof mongoose> {
   // If we have an in-flight connect attempt, await and reuse it.
   if (cache.promise && state === 2) {
     cache.conn = await cache.promise;
+    await ensureBootstrapCollection();
     return cache.conn;
   }
 
@@ -55,6 +100,7 @@ export async function connectDb(): Promise<typeof mongoose> {
 
   try {
     cache.conn = await cache.promise;
+    await ensureBootstrapCollection();
     return cache.conn;
   } catch (error) {
     cache.conn = null;

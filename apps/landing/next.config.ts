@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['@debybe/ui'],
+  transpilePackages: ['@debybe/ui', '@debybe/graphql'],
   reactStrictMode: true,
   poweredByHeader: false,
 };

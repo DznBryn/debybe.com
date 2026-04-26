@@ -1,12 +1,31 @@
 import { Container } from '@debybe/ui';
-import { getPublishedPosts } from '@debybe/db';
+import { cache } from 'react';
+import {
+  createGraphqlClient,
+  GET_PUBLISHED_POSTS_QUERY,
+  type PublishedPostPreview,
+  type PublishedPostsQueryResult,
+} from '@debybe/graphql';
 import { PostCard } from '@/components/post-card';
 
 export const revalidate = 60;
 
-export default async function BlogIndexPage() {
-  const posts = await getPublishedPosts(50);
+const getPublishedPostsFromApi = cache(async (limit = 50): Promise<PublishedPostPreview[]> => {
+  try {
+    const client = createGraphqlClient();
+    const { data } = await client.query<PublishedPostsQueryResult>({
+      query: GET_PUBLISHED_POSTS_QUERY,
+      variables: { limit },
+    });
+    return data.publishedPosts;
+  } catch {
+    return [];
+  }
+});
 
+export default async function BlogIndexPage() {
+  const posts = await getPublishedPostsFromApi(50);
+  
   return (
     <main>
       <Container size="lg" className="py-16 md:py-24">

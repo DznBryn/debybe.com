@@ -3,7 +3,12 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { cache } from 'react';
 import { Container, Prose } from '@debybe/ui';
-import { getPostBySlug } from '@debybe/db';
+import {
+  createGraphqlClient,
+  GET_POST_BY_SLUG_QUERY,
+  type BlogPost,
+  type PostBySlugQueryResult,
+} from '@debybe/graphql';
 import { PostHeader } from '@/components/post-header';
 import { Mdx } from '@/components/mdx';
 
@@ -13,7 +18,18 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-const getCachedPostBySlug = cache(async (slug: string) => getPostBySlug(slug));
+const getCachedPostBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
+  try {
+    const client = createGraphqlClient();
+    const { data } = await client.query<PostBySlugQueryResult>({
+      query: GET_POST_BY_SLUG_QUERY,
+      variables: { slug },
+    });
+    return data.postBySlug;
+  } catch {
+    return null;
+  }
+});
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -47,7 +63,7 @@ export default async function PostPage({ params }: PageProps) {
 
   return (
     <main>
-      <Container size="sm" className="py-16 md:py-24">
+      <Container size="md" className="py-16 md:py-24">
         <Link
           href="/"
           className="mb-10 inline-block font-mono text-xs uppercase tracking-[0.2em] text-fg-subtle transition-colors hover:text-accent"

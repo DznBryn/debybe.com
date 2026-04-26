@@ -1,4 +1,8 @@
-import { getPublishedPosts } from '@debybe/db';
+import {
+  createGraphqlClient,
+  GET_PUBLISHED_POSTS_QUERY,
+  type PublishedPostsQueryResult,
+} from '@debybe/graphql';
 
 export const revalidate = 600;
 
@@ -13,7 +17,17 @@ function escapeXml(s: string): string {
 
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_BLOG_URL ?? 'https://blog.debybe.com';
-  const posts = await getPublishedPosts(50);
+  let posts: PublishedPostsQueryResult['publishedPosts'] = [];
+  try {
+    const client = createGraphqlClient();
+    const { data } = await client.query<PublishedPostsQueryResult>({
+      query: GET_PUBLISHED_POSTS_QUERY,
+      variables: { limit: 50 },
+    });
+    posts = data.publishedPosts;
+  } catch {
+    posts = [];
+  }
 
   const items = posts
     .map((p) => {

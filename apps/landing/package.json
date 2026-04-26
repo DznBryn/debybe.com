@@ -11,6 +11,7 @@
     "clean": "rm -rf .next .turbo node_modules"
   },
   "dependencies": {
+    "@debybe/graphql": "workspace:*",
     "@debybe/ui": "workspace:*",
     "next": "^15.5.12",
     "react": "^19.0.0",

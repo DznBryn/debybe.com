@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import type { PostListItem } from '@debybe/db';
+import type { PublishedPostPreview } from '@debybe/graphql';
 import { formatDate } from '@/lib/format';
 import { TagPill } from './tag-pill';
 
-export function PostCard({ post }: { post: PostListItem }) {
+export function PostCard({ post }: { post: PublishedPostPreview }) {
   return (
     <article className="group rounded-2xl border border-border bg-bg-soft p-6 transition-colors hover:border-accent/60">
       <Link href={`/${post.slug}`} className="block">
