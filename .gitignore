@@ -42,3 +42,5 @@ yarn-debug.log*
 # editor
 .idea/
 .vscode/
+
+.cursor
