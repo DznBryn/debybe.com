@@ -25,7 +25,7 @@ const getCachedPostBySlug = cache(async (slug: string): Promise<BlogPost | null>
       query: GET_POST_BY_SLUG_QUERY,
       variables: { slug },
     });
-    return data.postBySlug;
+    return data?.postBySlug ?? null;
   } catch {
     return null;
   }

@@ -17,7 +17,7 @@ const getPublishedPostsFromApi = cache(async (limit = 50): Promise<PublishedPost
       query: GET_PUBLISHED_POSTS_QUERY,
       variables: { limit },
     });
-    return data.publishedPosts;
+    return data?.publishedPosts ?? [];
   } catch {
     return [];
   }

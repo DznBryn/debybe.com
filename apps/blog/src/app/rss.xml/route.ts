@@ -24,7 +24,7 @@ export async function GET() {
       query: GET_PUBLISHED_POSTS_QUERY,
       variables: { limit: 50 },
     });
-    posts = data.publishedPosts;
+    posts = data?.publishedPosts ?? [];
   } catch {
     posts = [];
   }
