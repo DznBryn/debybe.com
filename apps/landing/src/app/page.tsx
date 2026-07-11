@@ -12,7 +12,7 @@ async function getApiHealth(): Promise<string | null> {
     const { data } = await client.query<HealthQueryResult>({
       query: GET_API_HEALTH_QUERY,
     });
-    return data.health;
+    return data?.health ?? null;
   } catch {
     return null;
   }

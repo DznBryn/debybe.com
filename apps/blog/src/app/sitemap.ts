@@ -22,7 +22,7 @@ async function getSitemapData() {
       }),
     ]);
 
-    return { posts: postsData.publishedPosts, tags: tagsData.allTags };
+    return { posts: postsData?.publishedPosts ?? [], tags: tagsData?.allTags ?? [] };
   } catch {
     return { posts: [], tags: [] };
   }
