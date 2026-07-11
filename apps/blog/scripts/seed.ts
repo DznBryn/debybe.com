@@ -1,8 +1,8 @@
 import { config as loadEnv } from 'dotenv';
 import { PostModel, connectDb, disconnectDb, hasMongoConfig, resolveMongoUri } from '@debybe/db';
 
-loadEnv({ path: '.env.local' });
-loadEnv({ path: '.env' });
+loadEnv({ path: '.env.local', quiet: true, });
+loadEnv({ path: '.env', quiet: true, });
 
 type SeedPost = {
   slug: string;

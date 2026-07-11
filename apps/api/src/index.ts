@@ -8,8 +8,15 @@ import { resolvers, typeDefs } from '@debybe/graphql/server';
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const appRoot = path.resolve(currentDir, '..');
 
-loadEnv({ path: path.join(appRoot, '.env.local') });
-loadEnv({ path: path.join(appRoot, '.env') });
+loadEnv({
+  path: path.join(appRoot, '.env.local'),
+  quiet: true,
+});
+
+loadEnv({
+  path: path.join(appRoot, '.env'),
+  quiet: true,
+});
 
 const server = new ApolloServer({
   typeDefs,
